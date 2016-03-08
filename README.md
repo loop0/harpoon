@@ -84,6 +84,7 @@ It must be the same as the one defined on the GitHub's WebHook page.
 ### Thanks
 
 - [https://mholt.github.io/json-to-go/](https://mholt.github.io/json-to-go/)
+- [https://github.com/BurntSushi/toml](https://github.com/BurntSushi/toml)
 - [https://github.com/fatih/color](https://github.com/fatih/color)
 - [https://github.com/gorilla/mux](https://github.com/gorilla/mux)
 
