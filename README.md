@@ -27,7 +27,6 @@ This is a sample TOML file:
 ```toml
 port = 9001
 addr = "0.0.0.0"
-knownEvents = ["push", "watch"]
 
 [events."push:foo/bar:refs/heads/develop"]
 cmd = "echo"
@@ -49,17 +48,37 @@ It will also echo `Watch!` if someone stars it.
 #### Really running
 
 ```sh
-hook
+harpoon
 ```
 
 or to have it verbose:
 ```sh
-hook -v
+harpoon -v
 ```
+
+It will output something like this when running:
+```
+    __
+   / /_  ____ __________  ____  ____  ____
+  / __ \/ __ `/ ___/ __ \/ __ \/ __ \/ __ \
+ / / / / /_/ / /  / /_/ / /_/ / /_/ / / / /
+/_/ /_/\__,_/_/  / .___/\____/\____/_/ /_/
+                /_/
+	Listening on 0.0.0.0:9001
+    
+push detected on foo/bar with ref refs/heads/develop with the following commits:
+	2016-03-08 13:59:38 +0100 CET - adding some awesomeness by Foo Bar
+	2016-03-08 13:59:57 +0100 CET - forgot the unicorn png by Foo Bar
+	2016-03-08 14:01:12 +0100 CET - so much joy in one commit by Foo Bar
+> Push!
+```
+
+Obviously, the command should be something like `/path/to/pull-build-n-deploy.sh` where some awesome stuff is going on. 
+Like something involving git, maven, rake, npm, bower, I don't know, this is your job :)
 
 ### Security
 
-`POST` requests made by GitHub can be signature-validated if the environment variable `GITHUB_HOOK_SECRET_TOKEN` is set.
+`POST` requests made by GitHub are validated against the `X-Hub-Signature` if the environment variable `GITHUB_HOOK_SECRET_TOKEN` is set.
 It must the same as the one defined on the GitHub's WebHook page.
 
 ### Thanks
