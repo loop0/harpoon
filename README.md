@@ -79,7 +79,7 @@ Like something involving git, maven, rake, npm, bower, I don't know, this is you
 ### Security
 
 `POST` requests made by GitHub are validated against the `X-Hub-Signature` if the environment variable `GITHUB_HOOK_SECRET_TOKEN` is set.
-It must the same as the one defined on the GitHub's WebHook page.
+It must be the same as the one defined on the GitHub's WebHook page.
 
 ### Thanks
 
