@@ -1,4 +1,4 @@
- ## Harpoon
+## Harpoon
 
 Harpoon is a simple Go program that listens for GitHub hooks like `push` on specific git repository `refs` and execute
 a defined command when it occurs.
