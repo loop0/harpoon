@@ -3,7 +3,7 @@
 Harpoon is a simple Go program that listens for GitHub hooks like `push` on specific git repository `refs` and execute
 a defined command when it occurs.
 
-It can all be configured in a TOML configuration file.
+It can be configured in a TOML configuration file.
 
 That's nothing fancy, just didn't want to install the whole nodejs + npm or Apache + PHP just for this.
 
