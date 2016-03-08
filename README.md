@@ -1,10 +1,8 @@
 ## Harpoon
 
-[![Go Documentation](http://img.shields.io/badge/go-documentation-blue.svg?style=flat-square)][godocs]
 [![Go Report Card](https://goreportcard.com/badge/github.com/agrison/harpoon)][goreportcard]
 [![Build Status](https://travis-ci.org/agrison/harpoon.svg?branch=master)](https://travis-ci.org/agrison/harpoon)
 
-[godocs]: https://godoc.org/github.com/agrison/harpoon
 [goreportcard]: https://goreportcard.com/report/github.com/agrison/harpoon
 
 Harpoon is a simple Go program that listens for GitHub hooks like `push` on specific git repository `refs` and execute
