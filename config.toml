@@ -1,0 +1,12 @@
+# config file
+
+port = 9001
+addr = "0.0.0.0"
+
+[events."push:foo/bar:refs/heads/develop"]
+cmd = "echo"
+args = "Push!"
+
+[events."watch:foo/bar:refs/heads/develop"]
+cmd = "echo"
+args = "Watch!"
