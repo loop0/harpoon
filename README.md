@@ -78,6 +78,7 @@ push detected on foo/bar with ref refs/heads/develop with the following commits:
 > Push!
 ```
 
+
 Obviously, the command should be something like `/path/to/pull-build-n-deploy.sh` where some awesome stuff is going on. 
 Like something involving git, maven, rake, npm, bower, I don't know, this is your job :)
 
