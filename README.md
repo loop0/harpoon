@@ -29,19 +29,19 @@ port = 9001
 addr = "0.0.0.0"
 knownEvents = ["push", "watch"]
 
-[events."push:refs/heads/develop"]
+[events."push:foo/bar:refs/heads/develop"]
 cmd = "echo"
 args = "Push!"
 
-[events."watch:refs/heads/develop"]
+[events."watch:foo/bar:refs/heads/develop"]
 cmd = "echo"
 args = "Watch!"
 ```
 
 As you can see events and refs can be configured in the `events` TOML table section.
 
-These keys have the following format `events.{event}:{ref}` where `{event}` refers to a GitHub WebHook event
-like `push`, `watch`, `pull_request`, ... and `{ref}` refers to a ref in your git repository like `refs/heads/master` or `refs/tags/v0.0.1`.
+These keys have the following format `events.{event}:{repository}:{ref}` where `{event}` refers to a GitHub WebHook event
+like `push`, `watch`, `pull_request`, ...; `{repository}` is the GitHub repository name and `{ref}` refers to a ref in your git repository like `refs/heads/master` or `refs/tags/v0.0.1`.
 
 For the above example, it will echo `Push!` when something has been pushed to the `develop` branch of your GitHub repository. 
 It will also echo `Watch!` if someone stars it.
