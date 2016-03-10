@@ -137,7 +137,7 @@ func BadRequestHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	verbosePtr := flag.Bool("v", false, "Weither we output stuff.")
+	verbosePtr := flag.Bool("v", false, "Whether we output stuff.")
 	flag.Parse()
 	verbose = *verbosePtr
 
