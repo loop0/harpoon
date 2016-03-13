@@ -32,6 +32,9 @@ This is a sample TOML file:
 ```toml
 port = 9001
 addr = "0.0.0.0"
+# tunneling stuff
+tunnel = true
+tunnelName = "foobarbazz"
 
 [events."push:foo/bar:refs/heads/develop"]
 cmd = "echo"
@@ -50,13 +53,18 @@ like `push`, `watch`, `pull_request`, ...; `{repository}` is the GitHub reposito
 For the above example, it will echo `Push!` when something has been pushed to the `develop` branch of your GitHub repository. 
 It will also echo `Watch!` if someone stars it.
 
+#### Tunneling
+
+Tunneling can be enabled using `localtunnel.me`, you just have to enable it in the `config.toml` and indicate a desired subdomain using the `tunnelName` field.
+If no `tunnelName` is provided then `localtunnel.me` will give you a random subdomain, this subdomain is printed in the console logs.
+
 #### Really running
 
 ```sh
 harpoon
 ```
 
-or to have it verbose:
+or to have it verbose (use `-vt` also if you want logs about `localtunnel.me`):
 ```sh
 harpoon -v
 ```
@@ -93,6 +101,7 @@ It must be the same as the one defined on the GitHub's WebHook page.
 - [https://github.com/BurntSushi/toml](https://github.com/BurntSushi/toml)
 - [https://github.com/fatih/color](https://github.com/fatih/color)
 - [https://github.com/gorilla/mux](https://github.com/gorilla/mux)
+- [https://github.com/NoahShen/gotunnelme](https://github.com/NoahShen/gotunnelme)
 
 ### Licence
 MIT

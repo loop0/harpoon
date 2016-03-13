@@ -7,9 +7,11 @@ import (
 )
 
 type tomlConfig struct {
-	Port   int    `toml:"port"`
-	Addr   string `toml:"addr"`
-	Events map[string]event
+	Port       int    `toml:"port"`
+	Addr       string `toml:"addr"`
+	Events     map[string]event
+	Tunnel     bool
+	TunnelName string
 }
 
 type event struct {

@@ -14,7 +14,9 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"time"
 
+	"github.com/NoahShen/gotunnelme/src/gotunnelme" // for tunneling
 	"github.com/fatih/color"
 	"github.com/gorilla/mux"
 )
@@ -136,8 +138,15 @@ func BadRequestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(`{"message": "I don't know what you're talking about"}`))
 }
 
+// HeyHandler handles GET request on /.
+func HeyHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.Write([]byte(`Hey, what's up?`))
+}
+
 func main() {
-	verbosePtr := flag.Bool("v", false, "Weither we output stuff.")
+	verbosePtr := flag.Bool("v", false, "Whether we output stuff.")
+	verboseTunnelPtr := flag.Bool("vt", false, "Whether we output stuff regarding tunneling.")
 	flag.Parse()
 	verbose = *verbosePtr
 
@@ -152,9 +161,33 @@ func main() {
                 /_/                        
 `)
 	color.White("\tListening on " + addr)
+	readyToListen := false
+
+	if config.Tunnel {
+		if *verboseTunnelPtr {
+			gotunnelme.Debug = true
+		}
+		tunnel := gotunnelme.NewTunnel()
+		url, err := tunnel.GetUrl(config.TunnelName)
+		if err != nil {
+			panic("Could not get localtunnel.me URL. " + err.Error())
+		}
+		go func() {
+			for !readyToListen {
+				time.Sleep(1 * time.Second)
+			}
+			color.Cyan("\tTunnel URL: " + url)
+			err := tunnel.CreateTunnel(config.Port)
+			if err != nil {
+				panic("Could not create tunnel. " + err.Error())
+			}
+		}()
+	}
 
 	// router & server
 	r := mux.NewRouter()
 	r.HandleFunc("/", HookHandler).Methods("POST")
+	r.HandleFunc("/", HeyHandler).Methods("GET")
+	readyToListen = true
 	http.ListenAndServe(addr, r)
 }
