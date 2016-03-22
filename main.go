@@ -118,24 +118,35 @@ func handleEvent(event string, hook HookWithRepository, payload []byte) {
 	}
 	cmd := exec.Command(config.Events[eventKey].Cmd,
 		strings.Split(config.Events[eventKey].Args, " ")...)
-	cmdReader, err := cmd.StdoutPipe()
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "Error creating StdoutPipe for Cmd", err)
-		return
-	}
 
 	// in case of -verbose we log the output of the executed command
 	if verbose {
+		cmdReader, err := cmd.StdoutPipe()
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "Error creating StdoutPipe for Cmd", err)
+			return
+		}
 		scanner := bufio.NewScanner(cmdReader)
 		go func() {
 			for scanner.Scan() {
 				color.White("> " + scanner.Text() + "\n")
 			}
 		}()
+		cmdReader, err = cmd.StderrPipe()
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "Error creating StderrPipe for Cmd", err)
+			return
+		}
+		scanner = bufio.NewScanner(cmdReader)
+		go func() {
+			for scanner.Scan() {
+				color.Yellow("> " + scanner.Text() + "\n")
+			}
+		}()
 	}
 
 	// launch it
-	err = cmd.Start()
+	err := cmd.Start()
 	if err != nil {
 		color.Set(color.FgRed)
 		fmt.Fprintln(os.Stderr, "Error starting Cmd", err)
