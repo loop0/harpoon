@@ -29,6 +29,7 @@ const (
 var (
 	config            = tomlConfig{}                          // the program config
 	verbose           = false                                 // weither we should log the output of the command
+	verboseTunnel     = false                                 // weither we should log the output of the tunneling
 	gitHubSecretToken = os.Getenv("GITHUB_HOOK_SECRET_TOKEN") // the webhook secret token, used to verify signature
 )
 
@@ -169,10 +170,9 @@ func HeyHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	verbosePtr := flag.Bool("v", false, "Whether we output stuff.")
-	verboseTunnelPtr := flag.Bool("vt", false, "Whether we output stuff regarding tunneling.")
+	flag.BoolVar(&verbose, "v", false, "Whether we output stuff.")
+	flag.BoolVar(&verboseTunnel, "vt", false, "Whether we output stuff regarding tunneling.")
 	flag.Parse()
-	verbose = *verbosePtr
 
 	// load the config.toml
 	config = loadConfig()
@@ -188,7 +188,7 @@ func main() {
 	readyToListen := false
 
 	if config.Tunnel {
-		if *verboseTunnelPtr {
+		if verboseTunnel {
 			gotunnelme.Debug = true
 		}
 		tunnel := gotunnelme.NewTunnel()
