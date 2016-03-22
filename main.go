@@ -29,6 +29,7 @@ const (
 var (
 	config            = tomlConfig{}                          // the program config
 	verbose           = false                                 // weither we should log the output of the command
+	verboseTunnel     = false                                 // weither we should log the output of the tunneling
 	gitHubSecretToken = os.Getenv("GITHUB_HOOK_SECRET_TOKEN") // the webhook secret token, used to verify signature
 )
 
@@ -73,8 +74,10 @@ func HookHandler(w http.ResponseWriter, r *http.Request) {
 		return // always respond 200 to pings
 	}
 
-	// check weither we're interested in that event for that ref
-	if _, ok := config.Events[event+":"+eventPayload.Repository.FullName+":"+eventPayload.Ref]; !ok {
+	// check whether we're interested in that event
+	if shouldHandleEvent(config.Events, event, eventPayload) {
+		handleEvent(event, eventPayload, []byte(payload))
+	} else {
 		if verbose {
 			color.Set(color.FgRed)
 			fmt.Fprintf(os.Stderr, "Discarding %s on %s with ref %s.\n",
@@ -85,7 +88,15 @@ func HookHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	handleEvent(event, eventPayload, []byte(payload))
+}
+
+func shouldHandleEvent(events map[string]event, event string, eventPayload HookWithRepository) bool {
+	if _, ok := events[event+":"+eventPayload.Repository.FullName+":"+eventPayload.Ref]; ok {
+		return true
+	} else if _, ok := events[event+":"+eventPayload.Repository.FullName+":all"]; ok {
+		return true
+	}
+	return false
 }
 
 // handleEvent handles any event.
@@ -103,26 +114,40 @@ func handleEvent(event string, hook HookWithRepository, payload []byte) {
 
 	// prepare the command
 	eventKey := event + ":" + hook.Repository.FullName + ":" + hook.Ref
+	if _, ok := config.Events[eventKey]; !ok {
+		eventKey = event + ":" + hook.Repository.FullName + ":all"
+	}
 	cmd := exec.Command(config.Events[eventKey].Cmd,
 		strings.Split(config.Events[eventKey].Args, " ")...)
-	cmdReader, err := cmd.StdoutPipe()
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "Error creating StdoutPipe for Cmd", err)
-		return
-	}
 
 	// in case of -verbose we log the output of the executed command
 	if verbose {
+		cmdReader, err := cmd.StdoutPipe()
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "Error creating StdoutPipe for Cmd", err)
+			return
+		}
 		scanner := bufio.NewScanner(cmdReader)
 		go func() {
 			for scanner.Scan() {
 				color.White("> " + scanner.Text() + "\n")
 			}
 		}()
+		cmdReader, err = cmd.StderrPipe()
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "Error creating StderrPipe for Cmd", err)
+			return
+		}
+		scanner = bufio.NewScanner(cmdReader)
+		go func() {
+			for scanner.Scan() {
+				color.Yellow("> " + scanner.Text() + "\n")
+			}
+		}()
 	}
 
 	// launch it
-	err = cmd.Start()
+	err := cmd.Start()
 	if err != nil {
 		color.Set(color.FgRed)
 		fmt.Fprintln(os.Stderr, "Error starting Cmd", err)
@@ -145,10 +170,9 @@ func HeyHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	verbosePtr := flag.Bool("v", false, "Whether we output stuff.")
-	verboseTunnelPtr := flag.Bool("vt", false, "Whether we output stuff regarding tunneling.")
+	flag.BoolVar(&verbose, "v", false, "Whether we output stuff.")
+	flag.BoolVar(&verboseTunnel, "vt", false, "Whether we output stuff regarding tunneling.")
 	flag.Parse()
-	verbose = *verbosePtr
 
 	// load the config.toml
 	config = loadConfig()
@@ -164,7 +188,7 @@ func main() {
 	readyToListen := false
 
 	if config.Tunnel {
-		if *verboseTunnelPtr {
+		if verboseTunnel {
 			gotunnelme.Debug = true
 		}
 		tunnel := gotunnelme.NewTunnel()
