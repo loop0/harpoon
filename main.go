@@ -73,8 +73,10 @@ func HookHandler(w http.ResponseWriter, r *http.Request) {
 		return // always respond 200 to pings
 	}
 
-	// check weither we're interested in that event for that ref
-	if _, ok := config.Events[event+":"+eventPayload.Repository.FullName+":"+eventPayload.Ref]; !ok {
+	// check whether we're interested in that event
+	if shouldHandleEvent(config.Events, event, eventPayload) {
+		handleEvent(event, eventPayload, []byte(payload))
+	} else {
 		if verbose {
 			color.Set(color.FgRed)
 			fmt.Fprintf(os.Stderr, "Discarding %s on %s with ref %s.\n",
@@ -85,7 +87,15 @@ func HookHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	handleEvent(event, eventPayload, []byte(payload))
+}
+
+func shouldHandleEvent(events map[string]event, event string, eventPayload HookWithRepository) bool {
+	if _, ok := events[event+":"+eventPayload.Repository.FullName+":"+eventPayload.Ref]; ok {
+		return true
+	} else if _, ok := events[event+":"+eventPayload.Repository.FullName+":all"]; ok {
+		return true
+	}
+	return false
 }
 
 // handleEvent handles any event.
@@ -103,6 +113,9 @@ func handleEvent(event string, hook HookWithRepository, payload []byte) {
 
 	// prepare the command
 	eventKey := event + ":" + hook.Repository.FullName + ":" + hook.Ref
+	if _, ok := config.Events[eventKey]; !ok {
+		eventKey = event + ":" + hook.Repository.FullName + ":all"
+	}
 	cmd := exec.Command(config.Events[eventKey].Cmd,
 		strings.Split(config.Events[eventKey].Args, " ")...)
 	cmdReader, err := cmd.StdoutPipe()
