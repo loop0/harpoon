@@ -24,7 +24,8 @@ func TestMain(m *testing.M) {
 	for i := 0; i < tries; i++ {
 		if conn, err := net.Dial("tcp", "localhost:9001"); err == nil {
 			conn.Close()
-			fmt.Println("Server up!")
+			fmt.Println("Server up! Waiting another second.")
+			<-time.After(1 * time.Second)
 			break
 		}
 		if i < tries-1 {
