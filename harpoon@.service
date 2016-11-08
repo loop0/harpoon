@@ -1,0 +1,14 @@
+[Unit]
+Description=Harpoon server for user %i
+After=network.target
+AssertFileNotEmpty=/usr/local/bin/harpoon
+AssertFileIsExecutable=/usr/local/bin/harpoon
+
+[Service]
+User=%i
+Type=simple
+ExecStart=/usr/local/bin/harpoon /home/%i/harpoon.toml
+Nice=5
+
+[Install]
+WantedBy=multi-user.target
