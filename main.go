@@ -153,7 +153,7 @@ func handleEvent(event string, hook HookWithRepository, payload []byte) {
 		color.Set(color.FgRed)
 		fmt.Fprintln(os.Stderr, "Error starting Cmd", err)
 		color.Set(color.Faint)
-		return
+		defer cmd.Wait()
 	}
 }
 
